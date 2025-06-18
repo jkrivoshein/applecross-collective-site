@@ -80,24 +80,12 @@ export default function ArtistClientPage({ artist }: { artist: Artist }) {
                     />
                   );
                 }
-                if (url.includes("bandcamp")) {
-                  const albumMatch = url.match(/album=(\d+)/);
-                  if (albumMatch) {
-                    const albumId = albumMatch[1];
-                    return (
-                      <iframe
-                        key={index}
-                        style={{ border: 0, width: "100%", height: "120px" }}
-                        src={`https://bandcamp.com/EmbeddedPlayer/album=${albumId}/size=large/bgcol=333333/linkcol=ffffff/tracklist=false/artwork=small/transparent=true/`}
-                        seamless
-                      />
-                    );
-                  }
+                if (url.includes("bandcamp.com")) {
                   return (
                     <iframe
                       key={index}
                       style={{ border: 0, width: "100%", height: "120px" }}
-                      src={`${url}?embed=true`}
+                      src={url}
                       seamless
                     />
                   );
