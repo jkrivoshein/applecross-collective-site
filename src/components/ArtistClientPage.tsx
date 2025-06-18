@@ -4,13 +4,35 @@ import { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { artists } from "@/lib/artist.config";
 import type { Artist } from "@/lib/types";
 
-export default function ArtistClientPage({ artist }: { artist: Artist }) {
+export default function ArtistClientPage({ defaultArtistSlug }: { defaultArtistSlug: string }) {
+  const [selected, setSelected] = useState(defaultArtistSlug);
+  const artist = artists[selected];
+  const slugs = Object.keys(artists);
   const [tab, setTab] = useState("about");
 
+  if (!artist) return null;
+
   return (
-    <div className="w-full">
+    <div className="min-h-screen bg-black text-white p-4">
+      <div className="mb-6">
+        <label htmlFor="artist" className="text-sm font-semibold">Select Artist</label>
+        <select
+          id="artist"
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="mt-1 w-full bg-zinc-900 border border-zinc-700 rounded-xl py-2 px-3 focus:outline-none focus:ring focus:ring-zinc-500"
+        >
+          {slugs.map((slug) => (
+            <option key={slug} value={slug}>
+              {artists[slug].name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="about">About</TabsTrigger>
