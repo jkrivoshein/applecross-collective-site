@@ -68,6 +68,51 @@ export const artists: Record<string, Artist> = {
       "https://open.spotify.com/track/5G6MfowqL6y2uhoffyw1Hj?si=3295cd288bec42e1",
     ],
   },
+  "gr33n-p13ce": {
+    name: "GR33N P13CE",
+    photoUrl: "/images/other-dj.jpg",
+    artwork: "/images/other-artwork.jpg",
+    about: "A DJ and bass music producer in the PNW.",
+    shows: [
+      { date: "2025-09-10", location: "Bend, OR" },
+      { date: "2025-09-22", location: "Denver, CO" },
+    ],
+    music: [
+      "https://soundcloud.com/gr33np13cemusic/emergence",
+      "https://soundcloud.com/gr33np13cemusic/housewife-birthday-slice",
+      "https://soundcloud.com/gr33np13cemusic/413ce-o-p13wip",
+    ],
+  },  
+  "hello-ego": {
+    name: "Hello Ego",
+    photoUrl: "/images/other-dj.jpg",
+    artwork: "/images/other-artwork.jpg",
+    about: "A bass music producer and DJ from SoCal.",
+    shows: [
+      { date: "2025-09-10", location: "Los Angeles, CA" },
+      { date: "2025-09-22", location: "Denver, CO" },
+    ],
+    music: [
+      "https://soundcloud.com/helloego/birdman-lil-wayne-stuntin-like-my-daddy-hello-ego-flip",
+      "https://soundcloud.com/helloego/paramoredecodeflip",
+      "https://open.spotify.com/track/1f16QfxGjXAq1WLjjBh2GM?si=3a10a0f7d0d44f06",
+    ],
+  },
+  "neon-spellcraft": {
+    name: "Neon Spellcraft",
+    photoUrl: "/images/other-dj.jpg",
+    artwork: "/images/other-artwork.jpg",
+    about: "A bass music producer and DJ from SoCal.",
+    shows: [
+      { date: "2025-07-27", location: "San Francisco, CA" },
+      { date: "2025-08-10", location: "Los Angeles, CA" },
+    ],
+    music: [
+      "https://open.spotify.com/track/41vheDeeZGFFfdV6zwulwT?si=b85e87343bd745d2",
+      "https://soundcloud.com/neonspellcraft/boba-fett",
+      "https://bandcamp.com/EmbeddedPlayer/album=715130692/size=large/bgcol=ffffff/linkcol=0687f5/track=1/transparent=true/",
+    ],
+  },
   lodestone: {
     name: "Lodestone",
     photoUrl: "/images/lodestone.jpg",
