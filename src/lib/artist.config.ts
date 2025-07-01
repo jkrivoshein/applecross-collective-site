@@ -1,11 +1,4 @@
-export type Artist = {
-  name: string;
-  photoUrl?: string;
-  artwork?: string;
-  about?: string;
-  shows?: { date: string; location: string }[];
-  music?: string[];
-};
+import type { Artist } from "./types";
 
 export const artists: Record<string, Artist> = {
   "applecross-collective": {
@@ -13,6 +6,7 @@ export const artists: Record<string, Artist> = {
     photoUrl: "/images/applecross.jpg",
     artwork: "/images/applecross-artwork.jpg",
     about: "A collaboration of DJs and producers pushing bass music boundaries.",
+    linktreeUrl: "https://linktr.ee/applecrosscollective",
     shows: [
       { date: "2025-07-12", location: "Seattle, WA" },
       { date: "2025-08-03", location: "Portland, OR" },
@@ -118,6 +112,7 @@ export const artists: Record<string, Artist> = {
     photoUrl: "/images/lodestone.jpg",
     artwork: "/images/lodestone-artwork.jpg",
     about: "A bass music producer in the PNW. Also one half of the group Pantry Raid.",
+    linktreeUrl: "https://linktr.ee/djlodestone",
     shows: [
       { date: "2025-09-10", location: "Boise, ID" },
       { date: "2025-09-22", location: "Denver, CO" },
