@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import useSWR from "swr";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Tabs,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/tabs";
 import { artists as td } from "@/lib/artist.config";
 import type { Artist } from "@/lib/types";
+import { LinktreeList, LinktreeData } from "./LinktreeList";
 
 export default function ArtistClientPage({
   defaultArtistSlug,
@@ -24,9 +26,24 @@ export default function ArtistClientPage({
   const artistSlugs = Object.keys(td);
   const [tab, setTab] = useState<Tab>("about");
 
+  // derive the Linktree username (if any)
+  const username = artist.linktreeUrl
+    ? new URL(artist.linktreeUrl).pathname.slice(1)
+    : null;
+
+  // fetch both the links and the profileImage
+  const { data: lt } = useSWR<LinktreeData>(
+    username ? `/api/linktree/${username}` : null,
+    (url) => fetch(url).then((r) => r.json())
+  );
+
+  // choose heroImage: Linktree’s header image → configured photoUrl → fallback
+  const heroImage =
+    lt?.profileImage ?? artist.photoUrl ?? "/images/other-dj.jpg";
+
   return (
     <div className="min-h-screen bg-black text-white p-4">
-      {/* Artist selector */}
+      {/* artist selector */}
       <div className="mb-6">
         <label htmlFor="artist" className="text-sm font-semibold">
           Select Artist
@@ -45,7 +62,7 @@ export default function ArtistClientPage({
         </select>
       </div>
 
-      {/* Tabs */}
+      {/* tabs */}
       <Tabs
         value={tab}
         onValueChange={(v: string) => setTab(v as Tab)}
@@ -60,30 +77,22 @@ export default function ArtistClientPage({
         {/* ABOUT */}
         <TabsContent value="about">
           <div className="flex flex-col items-center space-y-6">
-            {artist.artwork && (
+            {heroImage && (
               <Image
-                src={artist.artwork}
-                alt={`${artist.name} artwork`}
-                width={800}
-                height={800}
-                className="rounded-2xl shadow-xl object-cover"
+                src={heroImage}
+                alt={`${artist.name} profile`}
+                width={400}
+                height={400}
+                className="rounded-full shadow-lg object-cover"
               />
             )}
             <p className="max-w-2xl text-center text-white text-base leading-relaxed whitespace-pre-line">
               {artist.about}
             </p>
-
-            {/* LINKTREE BUTTON */}
-            {artist.linktreeUrl && (
-              <div className="mt-6 w-full max-w-2xl text-center">
-                <a
-                  href={artist.linktreeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-6 py-3 bg-zinc-800 rounded-xl hover:bg-zinc-700 transition text-white font-semibold"
-                >
-                  View Linktree
-                </a>
+            {artist.linktreeUrl && username && (
+              <div className="mt-6 w-full max-w-2xl">
+                <h2 className="text-xl font-semibold">Featured Links</h2>
+                <LinktreeList username={username} />
               </div>
             )}
           </div>
@@ -112,21 +121,19 @@ export default function ArtistClientPage({
           <div className="space-y-6">
             {artist.music?.map((link, idx) => {
               try {
-                // Spotify embed
                 if (link.includes("spotify.com")) {
-                  const pathname = new URL(link).pathname;
+                  const path = new URL(link).pathname;
                   return (
                     <iframe
                       key={idx}
                       className="w-full h-20"
-                      src={`https://open.spotify.com/embed${pathname}`}
+                      src={`https://open.spotify.com/embed${path}`}
                       frameBorder="0"
                       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                       loading="lazy"
                     />
                   );
                 }
-                // SoundCloud embed
                 if (link.includes("soundcloud.com")) {
                   return (
                     <iframe
@@ -141,7 +148,6 @@ export default function ArtistClientPage({
                     />
                   );
                 }
-                // Bandcamp embed
                 if (link.includes("bandcamp.com")) {
                   return (
                     <iframe
@@ -152,29 +158,28 @@ export default function ArtistClientPage({
                     />
                   );
                 }
-                // YouTube embed
-                if (link.includes("youtube.com") || link.includes("youtu.be")) {
+                if (
+                  link.includes("youtube.com") ||
+                  link.includes("youtu.be")
+                ) {
                   const url = new URL(link);
-                  const videoId =
+                  const vid =
                     url.hostname === "youtu.be"
                       ? url.pathname.slice(1)
                       : url.searchParams.get("v");
-                  if (!videoId) {
-                    return <p key={idx}>Invalid YouTube URL</p>;
-                  }
+                  if (!vid) return <p key={idx}>Invalid YouTube URL</p>;
                   return (
                     <iframe
                       key={idx}
                       width="100%"
                       height="315"
-                      src={`https://www.youtube.com/embed/${videoId}`}
+                      src={`https://www.youtube.com/embed/${vid}`}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
                   );
                 }
-                // Fallback for unknown link types
                 return (
                   <p key={idx} className="text-sm text-zinc-400">
                     <a
