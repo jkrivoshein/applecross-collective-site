@@ -21,6 +21,7 @@ export const artists: Record<string, Artist> = {
     name: "Intranaut",
     photoUrl: "/images/other-dj.jpg",
     artwork: "/images/other-artwork.jpg",
+    linktreeUrl: "https://linktr.ee/intranaut",
     about: "Applecross Collective Admin, DJ and Producer. Also one third of the group Meh.",
     shows: [
       { date: "2025-06-20", location: "The Happening" },
@@ -67,6 +68,7 @@ export const artists: Record<string, Artist> = {
     photoUrl: "/images/other-dj.jpg",
     artwork: "/images/other-artwork.jpg",
     about: "A DJ and bass music producer in the PNW.",
+    linktreeUrl: "https://linktr.ee/gr33np13ce",
     shows: [
       { date: "2025-09-10", location: "Bend, OR" },
       { date: "2025-09-22", location: "Denver, CO" },
@@ -82,6 +84,7 @@ export const artists: Record<string, Artist> = {
     photoUrl: "/images/other-dj.jpg",
     artwork: "/images/other-artwork.jpg",
     about: "A bass music producer and DJ from SoCal.",
+    linktreeUrl: "https://linktr.ee/helloego",
     shows: [
       { date: "2025-09-10", location: "Los Angeles, CA" },
       { date: "2025-09-22", location: "Denver, CO" },
@@ -97,6 +100,7 @@ export const artists: Record<string, Artist> = {
     photoUrl: "/images/other-dj.jpg",
     artwork: "/images/other-artwork.jpg",
     about: "A bass music producer and DJ from SoCal.",
+    linktreeUrl: "https://linktr.ee/neonspellcraft",
     shows: [
       { date: "2025-07-27", location: "San Francisco, CA" },
       { date: "2025-08-10", location: "Los Angeles, CA" },
