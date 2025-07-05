@@ -1,0 +1,11 @@
+# Build output
+.next/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Other non-source
+public/
+coverage/
