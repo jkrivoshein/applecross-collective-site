@@ -1,30 +1,27 @@
+// src/app/[username]/page.tsx
+
 import { getArtistBySlug } from '@/lib/artist.config';
 import { getLinksForArtist } from '@/lib/scraper';
+import { notFound } from 'next/navigation';
 import ArtistClientPage from '@/components/ArtistClientPage';
-import { Artist } from '@/lib/types';
 
-export default async function Page({
-  params,
-}: {
-  params: { username: string };
-}) {
-  const username = params.username;
-  console.log('[Server] Loading profile for:', username);
+interface Props {
+  params: {
+    username: string;
+  };
+}
 
-  const artist: Artist | undefined = getArtistBySlug(username);
+export default async function Page({ params }: Props) {
+  const artist = getArtistBySlug(params.username);
+  if (!artist) return notFound();
 
-  if (!artist || !artist.slug || !artist.artistUrl) {
-    console.warn('[Server] Invalid artist config:', artist);
-    return <div>Artist not found or missing required fields.</div>;
-  }
-
-  const { featuredLinks, socialLinks } = await getLinksForArtist(artist);
+  const links = await getLinksForArtist(params.username);
 
   return (
     <ArtistClientPage
       artist={artist}
-      featuredLinks={featuredLinks}
-      socialLinks={socialLinks}
+      featuredLinks={links}
+      socialLinks={links}
     />
   );
 }

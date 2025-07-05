@@ -1,32 +1,29 @@
 import { Artist } from './types';
 
 export const artists: Record<string, Artist> = {
-    
   'applecross-collective': {
     slug: 'applecross-collective',
     name: 'Applecross Collective',
     photoUrl: '/images/applecross.jpg',
     artwork: '/images/applecross-artwork.jpg',
     about: 'A musical collective from the Pacific Northwest.',
-    artistUrl: 'https://linktr.ee/applecrosscollective',
     socials: ['https://linktr.ee/applecrosscollective'],
     shows: [
       { date: '2025-08-01', location: 'Seattle, WA' },
       { date: '2025-09-10', location: 'Portland, OR' },
     ],
     music: [
-      'https://soundcloud.com/applecrosscollective/live-set-2025',
-      'https://open.spotify.com/track/1a2b3c4d5e6f7g8h9i0j',
+      'https://soundcloud.com/applecrosscollective/eoa001-minimix-taylor',
+      'https://open.spotify.com/album/0wiqXYl3Y83jgypB97IMgo',
     ],
   },
-   
+
   intranaut: {
     slug: 'intranaut',
     name: 'Intranaut',
     photoUrl: '/images/intranaut.jpg',
     artwork: '/images/intranaut-artwork.jpg',
     about: 'Intranaut is an experimental bass music producer and DJ from the Pacific Northwest.',
-    artistUrl: 'https://linktr.ee/intranautmusic',
     socials: ['https://linktr.ee/intranautmusic'],
     shows: [
       { date: '2025-06-01', location: 'Portland, OR' },
@@ -44,7 +41,6 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/other-dj.jpg',
     artwork: '/images/other-artwork.jpg',
     about: 'Applecross Collective Admin, DJ and Producer. Also half of the group Pantry Raid.',
-    artistUrl: 'https://ourfriendgus.com',
     socials: ['https://ourfriendgus.com'],
     shows: [
       { date: '2025-06-20', location: 'Vancouver, CA' },
@@ -63,7 +59,6 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/other-dj.jpg',
     artwork: '/images/other-artwork.jpg',
     about: 'A bass music producer and DJ from the PNW. Also one third of Meh.',
-    artistUrl: 'https://linktr.ee/kfishbeats',
     socials: ['https://linktr.ee/kfishbeats'],
     shows: [
       { date: '2025-09-10', location: 'Boise, ID' },
@@ -82,7 +77,6 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/other-dj.jpg',
     artwork: '/images/other-artwork.jpg',
     about: 'A DJ and bass music producer in the PNW.',
-    artistUrl: 'https://linktr.ee/gr33np13ce',
     socials: ['https://linktr.ee/gr33np13ce'],
     shows: [
       { date: '2025-09-10', location: 'Bend, OR' },
@@ -101,7 +95,6 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/other-dj.jpg',
     artwork: '/images/other-artwork.jpg',
     about: 'A bass music producer and DJ from SoCal.',
-    artistUrl: 'https://linktr.ee/helloego',
     socials: ['https://linktr.ee/helloego'],
     shows: [
       { date: '2025-09-10', location: 'Los Angeles, CA' },
@@ -120,7 +113,6 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/other-dj.jpg',
     artwork: '/images/other-artwork.jpg',
     about: 'A bass music producer and DJ from SoCal.',
-    artistUrl: 'https://linktr.ee/neonspellcraft',
     socials: ['https://linktr.ee/neonspellcraft'],
     shows: [
       { date: '2025-07-27', location: 'San Francisco, CA' },
@@ -139,7 +131,6 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/lodestone.jpg',
     artwork: '/images/lodestone-artwork.jpg',
     about: 'A bass music producer in the PNW. Also one half of the group Pantry Raid.',
-    artistUrl: 'https://linktr.ee/djlodestone',
     socials: ['https://linktr.ee/djlodestone'],
     shows: [
       { date: '2025-09-10', location: 'Boise, ID' },

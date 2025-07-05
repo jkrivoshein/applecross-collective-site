@@ -1,21 +1,16 @@
-import type { Show } from '@/lib/types';
+import { Artist } from '@/lib/types';
 
-type Props = {
-  shows?: Show[];
-};
-
-export default function UpcomingShows({ shows }: Props) {
-  if (!Array.isArray(shows) || shows.length === 0) {
-    return <p>No upcoming shows.</p>;
-  }
+export default function UpcomingShows({ artist }: { artist: Artist }) {
+  if (!Array.isArray(artist.shows)) return null;
 
   return (
-    <ul className="space-y-2">
-      {shows.map((show, i) => (
-        <li key={i} className="text-muted-foreground">
-          <strong>{show.date}</strong> — {show.location}
-        </li>
+    <div className="space-y-4">
+      {artist.shows.map((show, idx) => (
+        <div key={idx} className="text-sm">
+          <p>{show.date}</p>
+          <p className="text-muted-foreground">{show.location}</p>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }

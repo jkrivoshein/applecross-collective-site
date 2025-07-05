@@ -1,101 +1,94 @@
-import fs from 'fs/promises';
+import * as cheerio from 'cheerio';
+import type { Element } from 'domhandler';
+import { ScrapedLink } from './types';
+import { getArtistBySlug } from './artist.config';
 import path from 'path';
-import { load } from 'cheerio';
-import { Artist, ScrapedLink } from './types';
+import fs from 'fs';
 
-const CACHE_PATH = path.resolve('.cache/linktree.json');
+const CACHE_FILE = path.resolve(process.cwd(), '.cache', 'linktree.json');
+const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-type CacheData = Record<
-  string,
-  { featuredLinks: ScrapedLink[]; socialLinks: ScrapedLink[]; timestamp: number }
->;
+type CacheEntry = {
+  links: ScrapedLink[];
+  timestamp: number;
+};
 
-async function loadCache(): Promise<CacheData> {
+type CacheMap = Record<string, CacheEntry>;
+
+let memoryCache: CacheMap = {};
+
+function loadCache(): CacheMap {
   try {
-    const data = await fs.readFile(CACHE_PATH, 'utf8');
-    return JSON.parse(data) as CacheData;
+    const raw = fs.readFileSync(CACHE_FILE, 'utf-8');
+    return JSON.parse(raw) as CacheMap;
   } catch {
     return {};
   }
 }
 
-async function saveCache(cache: CacheData): Promise<void> {
-  await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
-  await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+function saveCache(cache: CacheMap) {
+  fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
+  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
 }
 
-export async function scrapeArtistLinks(url: string): Promise<ScrapedLink[]> {
-  const res = await fetch(url);
-  const html = await res.text();
-  const $ = load(html);
+function isCacheValid(entry?: CacheEntry): boolean {
+  return !!entry && Date.now() - entry.timestamp < CACHE_DURATION_MS;
+}
+
+async function fetchWithTimeout(url: string, timeout = 10000): Promise<string> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    return await res.text();
+  } catch {
+    throw new Error(`Timeout or fetch error for ${url}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parseLinksFromHtml(html: string): ScrapedLink[] {
+  const $ = cheerio.load(html);
   const links: ScrapedLink[] = [];
 
-  $('a[href]').each((_, el) => {
-    const href = $(el).attr('href');
-    const label = new URL(href || '').hostname;
-    if (href && label) {
-      links.push({ url: href, label });
+  $('a').each((_: unknown, el: Element) => {
+    const url = $(el).attr('href');
+    const label = $(el).text().trim();
+    if (url && /^https?:\/\//.test(url)) {
+      links.push({ url, label });
     }
   });
 
   return links;
 }
 
-function groupLinks(links: ScrapedLink[]): {
-  featuredLinks: ScrapedLink[];
-  socialLinks: ScrapedLink[];
-} {
-  const featuredLinks: ScrapedLink[] = [];
-  const socialLinks: ScrapedLink[] = [];
-
-  for (const link of links) {
-    const url = link.url.toLowerCase();
-    if (
-      url.includes('spotify') ||
-      url.includes('bandcamp') ||
-      url.includes('soundcloud.com') ||
-      url.includes('youtube') ||
-      url.includes('hypeddit.com')
-    ) {
-      featuredLinks.push({ ...link, featured: true });
-    } else {
-      socialLinks.push(link);
-    }
-  }
-
-  return { featuredLinks, socialLinks };
-}
-
 export async function getLinksForArtist(
-  artist: Artist,
-  refresh = false
-): Promise<{ featuredLinks: ScrapedLink[]; socialLinks: ScrapedLink[] }> {
-  const slug = artist.slug;
-  const url = artist.artistUrl;
+  slug: string,
+  { refresh = false }: { refresh?: boolean } = {}
+): Promise<ScrapedLink[]> {
+  const artist = getArtistBySlug(slug);
+  if (!artist) throw new Error(`Artist not found: ${slug}`);
 
-  if (!slug || !url) {
-    console.warn(`⚠️ Missing slug or artistUrl for artist: ${artist.name}`);
-    return { featuredLinks: [], socialLinks: [] };
+  const url = artist.socials?.[0];
+  if (!url) return [];
+
+  memoryCache = Object.keys(memoryCache).length ? memoryCache : loadCache();
+  const cached = memoryCache[slug];
+
+  if (!refresh && isCacheValid(cached)) {
+    return cached.links;
   }
 
-  const cache = await loadCache();
-  const cached = cache[slug];
-  const fresh = Date.now() - (cached?.timestamp || 0) < 1000 * 60 * 60 * 24;
-
-  if (cached && !refresh && fresh) {
-    console.log(`🧠 Using cached links for ${slug}`);
-    return {
-      featuredLinks: cached.featuredLinks,
-      socialLinks: cached.socialLinks,
-    };
+  try {
+    const html = await fetchWithTimeout(url);
+    const links = parseLinksFromHtml(html);
+    memoryCache[slug] = { links, timestamp: Date.now() };
+    saveCache(memoryCache);
+    return links;
+  } catch (_e) {
+    console.error(`Failed to fetch/scrape links for ${slug}:`, _e);
+    return cached?.links || [];
   }
-
-  console.log(`🔄 Forcing refresh for ${slug}`);
-  const rawLinks = await scrapeArtistLinks(url);
-  const { featuredLinks, socialLinks } = groupLinks(rawLinks);
-  console.log(`✅ Scraped links for ${slug} :`, [...featuredLinks, ...socialLinks]);
-
-  cache[slug] = { featuredLinks, socialLinks, timestamp: Date.now() };
-  await saveCache(cache);
-  return { featuredLinks, socialLinks };
 }

@@ -1,24 +1,24 @@
+// src/lib/types.ts
+
 export type Show = {
   date: string;
   location: string;
 };
 
 export type Artist = {
-  slug: string;
   name: string;
+  slug: string;
   photoUrl?: string;
   artwork?: string;
   about?: string;
-  artistUrl?: string; 
-  socials?: string[];
   shows?: Show[];
   music?: string[];
+  socials?: string[];
 };
 
 export type ScrapedLink = {
   url: string;
-  label: string;
-  image?: string;
-  featured?: boolean;
+  label?: string;
   artwork?: string;
+  featured?: boolean;
 };

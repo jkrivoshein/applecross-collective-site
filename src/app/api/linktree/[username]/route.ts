@@ -1,20 +1,19 @@
-import { getArtistBySlug } from '@/lib/artist.config';
+// src/app/api/linktree/[username]/route.ts
+
 import { getLinksForArtist } from '@/lib/scraper';
-import { NextResponse } from 'next/server';
 
 export async function GET(
   request: Request,
   { params }: { params: { username: string } }
-): Promise<NextResponse> {
-  const username = params.username;
-  const url = new URL(request.url);
-  const refresh = url.searchParams.get('refresh') === '1';
+) {
+  const { searchParams } = new URL(request.url);
+  const refresh = searchParams.get('refresh') === '1';
 
-  const artist = getArtistBySlug(username);
-  if (!artist) {
-    return new NextResponse('Artist not found', { status: 404 });
+  try {
+    const data = await getLinksForArtist(params.username, { refresh });
+    return Response.json({ links: data });
+  } catch (e) {
+    console.error(e);
+    return new Response('Failed to fetch links', { status: 500 });
   }
-
-  const data = await getLinksForArtist(artist, refresh);
-  return NextResponse.json(data);
 }

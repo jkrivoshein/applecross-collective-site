@@ -1,97 +1,57 @@
-import Image from 'next/image';
+// src/components/LinktreeList.tsx
+
+import React from 'react';
 import { ScrapedLink } from '@/lib/types';
-import { getPlatformEmoji, cleanLabel } from '@/lib/utils';
+import {
+  cleanLabel,
+  dedupeLinks,
+  getPlatformEmoji,
+  groupLinksByPlatform,
+} from '@/lib/utils';
 
-type Props = {
-  featuredLinks: ScrapedLink[];
-  socialLinks: ScrapedLink[];
-  fallbackImage?: string;
-};
+interface LinktreeListProps {
+  featuredLinks?: ScrapedLink[];
+  socialLinks?: ScrapedLink[];
+}
 
-export default function LinktreeList({ featuredLinks, socialLinks, fallbackImage }: Props) {
-  const dedupe = (arr: ScrapedLink[]) => {
-    const seen = new Set<string>();
-    return arr.filter((link) => {
-      const norm = link.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-      if (seen.has(norm)) return false;
-      seen.add(norm);
-      return true;
-    });
-  };
+export default function LinktreeList({
+  featuredLinks = [],
+  socialLinks = [],
+}: LinktreeListProps) {
+  const deduped = dedupeLinks(featuredLinks, socialLinks);
+  const { featured, social, other } = groupLinksByPlatform(deduped);
 
-  const all = dedupe([...featuredLinks, ...socialLinks]);
+  const renderGroup = (title: string, links: ScrapedLink[]) => {
+    if (!links.length) return null;
 
-  const groupLinksByPlatform = (links: ScrapedLink[]) => {
-    const featured: ScrapedLink[] = [];
-    const social: ScrapedLink[] = [];
-    const other: ScrapedLink[] = [];
-
-    for (const link of links) {
-      const url = link.url.toLowerCase();
-      if (
-        url.includes('bandcamp.com') ||
-        url.includes('soundcloud.com') ||
-        url.includes('open.spotify.com') ||
-        url.includes('youtube.com') ||
-        url.includes('on.soundcloud.com') ||
-        url.includes('hypeddit.com')
-      ) {
-        featured.push(link);
-      } else if (
-        url.includes('instagram.com') ||
-        url.includes('facebook.com') ||
-        url.includes('twitter.com') ||
-        url.includes('tiktok.com') ||
-        url.includes('discord.gg') ||
-        url.includes('patreon.com')
-      ) {
-        social.push(link);
-      } else {
-        other.push(link);
-      }
-    }
-
-    return { featured, social, other };
-  };
-
-  const { featured, social, other } = groupLinksByPlatform(all);
-
-  const renderGroup = (label: string, emoji: string, links: ScrapedLink[]) =>
-    links.length > 0 && (
+    return (
       <div className="mb-6">
-        <h3 className="text-white font-semibold mb-2">{emoji} {label}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {links.map((link) => (
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+          {title}
+        </h3>
+        <div className="flex flex-col gap-2">
+          {links.map((link, i) => (
             <a
-              key={link.url}
+              key={i}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-3 bg-zinc-800 hover:bg-zinc-700 transition rounded-md p-2"
+              className="flex items-center gap-2 px-4 py-2 rounded bg-muted text-foreground hover:bg-muted/70 transition-all text-sm font-medium"
             >
-              {link.artwork || fallbackImage ? (
-                <Image
-                  src={link.artwork || fallbackImage!}
-                  alt={link.label || 'link'}
-                  width={40}
-                  height={40}
-                  className="rounded object-cover"
-                />
-              ) : null}
-              <span className="text-sm text-white">
-                {getPlatformEmoji(link.url)} {cleanLabel(link.label || link.url)}
-              </span>
+              <span className="text-lg">{getPlatformEmoji(link.url)}</span>
+              <span>{cleanLabel(link.label || link.url)}</span>
             </a>
           ))}
         </div>
       </div>
     );
+  };
 
   return (
     <div className="mt-4">
-      {renderGroup('Featured Links', '🎧', featured)}
-      {renderGroup('Social Links', '🔗', social)}
-      {renderGroup('Other', '📦', other)}
+      {renderGroup('Featured Links', featured)}
+      {renderGroup('Social Links', social)}
+      {renderGroup('Other', other)}
     </div>
   );
 }
