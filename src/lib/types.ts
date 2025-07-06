@@ -22,3 +22,8 @@ export type ScrapedLink = {
   artwork?: string;
   featured?: boolean;
 };
+
+export type CacheEntry = {
+  links: ScrapedLink[];
+  timestamp: number;
+};

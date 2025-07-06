@@ -24,7 +24,7 @@ export const artists: Record<string, Artist> = {
     photoUrl: '/images/intranaut.jpg',
     artwork: '/images/intranaut-artwork.jpg',
     about: 'Intranaut is an experimental bass music producer and DJ from the Pacific Northwest.',
-    socials: ['https://linktr.ee/intranautmusic'],
+    socials: ['https://linktr.ee/intranaut'],
     shows: [
       { date: '2025-06-01', location: 'Portland, OR' },
       { date: '2025-07-15', location: 'Seattle, WA' },

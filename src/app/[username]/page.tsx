@@ -1,27 +1,13 @@
 // src/app/[username]/page.tsx
-
-import { getArtistBySlug } from '@/lib/artist.config';
-import { getLinksForArtist } from '@/lib/scraper';
 import { notFound } from 'next/navigation';
+import { getArtistBySlug } from '@/lib/artist.config';
 import ArtistClientPage from '@/components/ArtistClientPage';
 
-interface Props {
-  params: {
-    username: string;
-  };
-}
+export default function Page({ params }: { params: { username: string } }) {
+  const { username } = params;
 
-export default async function Page({ params }: Props) {
-  const artist = getArtistBySlug(params.username);
+  const artist = getArtistBySlug(username);
   if (!artist) return notFound();
 
-  const links = await getLinksForArtist(params.username);
-
-  return (
-    <ArtistClientPage
-      artist={artist}
-      featuredLinks={links}
-      socialLinks={links}
-    />
-  );
+  return <ArtistClientPage artist={artist} slug={username} />;
 }

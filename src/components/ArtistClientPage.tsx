@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { dedupeLinks, getPlatformEmoji, groupLinksByPlatform, cleanLabel } from '@/lib/utils';
@@ -10,12 +10,55 @@ import UpcomingShows from './UpcomingShows';
 
 type Props = {
   artist: Artist;
-  featuredLinks?: ScrapedLink[];
-  socialLinks?: ScrapedLink[];
+  slug: string;
 };
 
-export default function ArtistClientPage({ artist, featuredLinks = [], socialLinks = [] }: Props) {
+export default function ArtistClientPage({ artist, slug }: Props) {
   const [tab, setTab] = useState('about');
+  const [featuredLinks, setFeaturedLinks] = useState<ScrapedLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<ScrapedLink[]>([]);
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      try {
+        const res = await fetch(`/api/linktree/${slug}`);
+        const json: unknown = await res.json();
+
+        if (
+          typeof json === 'object' &&
+          json !== null &&
+          'links' in json &&
+          Array.isArray((json as Record<string, unknown>).links)
+        ) {
+          const links = (json as { links: ScrapedLink[] }).links;
+          const featured: ScrapedLink[] = [];
+          const social: ScrapedLink[] = [];
+
+          for (const link of links) {
+            const lower = link.url.toLowerCase();
+            if (
+              lower.includes('spotify') ||
+              lower.includes('bandcamp') ||
+              lower.includes('youtube') ||
+              lower.includes('soundcloud')
+            ) {
+              featured.push(link);
+            } else {
+              social.push(link);
+            }
+          }
+
+          setFeaturedLinks(featured);
+          setSocialLinks(social);
+        }
+      } catch (e) {
+        console.error('Failed to load links:', e);
+      }
+    };
+
+    void fetchLinks(); // ✅ explicitly mark promise as ignored
+  }, [slug]);
+
   const dedupedFeatured = dedupeLinks(featuredLinks, socialLinks);
   const dedupedSocial = dedupeLinks(socialLinks, featuredLinks);
 

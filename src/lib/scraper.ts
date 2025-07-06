@@ -1,73 +1,63 @@
-import * as cheerio from 'cheerio';
-import type { Element } from 'domhandler';
-import { ScrapedLink } from './types';
-import { getArtistBySlug } from './artist.config';
-import path from 'path';
+// src/lib/scraper.ts
 import fs from 'fs';
+import path from 'path';
+import { getArtistBySlug } from './artist.config';
+import { ScrapedLink, CacheEntry } from './types';
+import { parseLinksFromHtml } from './scrape';
+import fetch from 'node-fetch';
 
-const CACHE_FILE = path.resolve(process.cwd(), '.cache', 'linktree.json');
-const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_FILE = path.join(process.cwd(), 'cache', 'linktree.json');
 
-type CacheEntry = {
-  links: ScrapedLink[];
-  timestamp: number;
-};
+let memoryCache: Record<string, CacheEntry> = {};
 
-type CacheMap = Record<string, CacheEntry>;
-
-let memoryCache: CacheMap = {};
-
-function loadCache(): CacheMap {
+function loadCache(): Record<string, CacheEntry> {
   try {
-    const raw = fs.readFileSync(CACHE_FILE, 'utf-8');
-    return JSON.parse(raw) as CacheMap;
-  } catch {
-    return {};
+    if (fs.existsSync(CACHE_FILE)) {
+      const json = fs.readFileSync(CACHE_FILE, 'utf8');
+      const parsed = JSON.parse(json) as unknown;
+      return parsed as Record<string, CacheEntry>;
+    }
+  } catch (e) {
+    console.error('Failed to load cache:', e);
+  }
+  return {};
+}
+
+function saveCache(cache: Record<string, CacheEntry>) {
+  try {
+    fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
+  } catch (e) {
+    console.error('Failed to save cache:', e);
   }
 }
 
-function saveCache(cache: CacheMap) {
-  fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
-  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
-}
-
-function isCacheValid(entry?: CacheEntry): boolean {
-  return !!entry && Date.now() - entry.timestamp < CACHE_DURATION_MS;
+function isCacheValid(cached: CacheEntry | undefined, ttlMs = 1000 * 60 * 60 * 24): boolean {
+  if (!cached || !cached.timestamp || !cached.links?.length) return false;
+  return Date.now() - cached.timestamp < ttlMs;
 }
 
 async function fetchWithTimeout(url: string, timeout = 10000): Promise<string> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+  const id = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    });
+
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
     return await res.text();
-  } catch {
-    throw new Error(`Timeout or fetch error for ${url}`);
   } finally {
-    clearTimeout(timer);
+    clearTimeout(id);
   }
 }
 
-function parseLinksFromHtml(html: string): ScrapedLink[] {
-  const $ = cheerio.load(html);
-  const links: ScrapedLink[] = [];
-
-  $('a').each((_: unknown, el: Element) => {
-    const url = $(el).attr('href');
-    const label = $(el).text().trim();
-    if (url && /^https?:\/\//.test(url)) {
-      links.push({ url, label });
-    }
-  });
-
-  return links;
-}
-
-export async function getLinksForArtist(
-  slug: string,
-  { refresh = false }: { refresh?: boolean } = {}
-): Promise<ScrapedLink[]> {
+export async function getLinksForArtist(slug: string, refresh = false): Promise<ScrapedLink[]> {
   const artist = getArtistBySlug(slug);
   if (!artist) throw new Error(`Artist not found: ${slug}`);
 

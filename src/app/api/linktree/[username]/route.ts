@@ -1,19 +1,20 @@
-// src/app/api/linktree/[username]/route.ts
-
+import { NextRequest } from 'next/server';
 import { getLinksForArtist } from '@/lib/scraper';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { username: string } }
+  req: NextRequest,
+  context: { params: { username: string } }
 ) {
-  const { searchParams } = new URL(request.url);
-  const refresh = searchParams.get('refresh') === '1';
+  const { username } = context.params;
+  const refresh = req.nextUrl.searchParams.get('refresh') === '1';
 
   try {
-    const data = await getLinksForArtist(params.username, { refresh });
-    return Response.json({ links: data });
+    const links = await getLinksForArtist(username, refresh);
+    return Response.json({ links });
   } catch (e) {
-    console.error(e);
-    return new Response('Failed to fetch links', { status: 500 });
+    console.error(`API error for ${username}:`, e);
+    return new Response(JSON.stringify({ error: 'Failed to fetch links' }), {
+      status: 500,
+    });
   }
 }
