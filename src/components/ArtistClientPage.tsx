@@ -56,7 +56,7 @@ export default function ArtistClientPage({ artist, slug }: Props) {
       }
     };
 
-    void fetchLinks(); // ✅ explicitly mark promise as ignored
+    void fetchLinks();
   }, [slug]);
 
   const dedupedFeatured = dedupeLinks(featuredLinks, socialLinks);
@@ -71,17 +71,21 @@ export default function ArtistClientPage({ artist, slug }: Props) {
         <h3 className="mb-2 text-lg font-bold">{sectionTitle}</h3>
         <ul className="space-y-2">
           {Object.entries(groups).map(([platform, links]) => (
-            <li key={platform}>
+            <li key={platform} className="space-y-2">
               {links.map((link) => (
-                <a
+                <div
                   key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-sm hover:underline"
+                  className="bg-gray-800 rounded-lg px-4 py-2 transition hover:bg-gray-700"
                 >
-                  {getPlatformEmoji(link.url)} {cleanLabel(link.label)}
-                </a>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-white"
+                  >
+                    {getPlatformEmoji(link.url)} {cleanLabel(link.label)}
+                  </a>
+                </div>
               ))}
             </li>
           ))}
