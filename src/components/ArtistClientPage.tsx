@@ -2,148 +2,97 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { Artist } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { dedupeLinks, getPlatformEmoji, groupLinksByPlatform, cleanLabel } from '@/lib/utils';
-import type { Artist, ScrapedLink } from '@/lib/types';
+import { dedupeLinks, filterUnwantedLinks, getPlatformEmoji } from '@/lib/utils';
 import EmbeddedPlayer from './EmbeddedPlayer';
-import UpcomingShows from './UpcomingShows';
 
 type Props = {
   artist: Artist;
-  slug: string;
+  scrapedLinks: { url: string; label: string }[];
 };
 
-export default function ArtistClientPage({ artist, slug }: Props) {
-  const [tab, setTab] = useState('about');
-  const [featuredLinks, setFeaturedLinks] = useState<ScrapedLink[]>([]);
-  const [socialLinks, setSocialLinks] = useState<ScrapedLink[]>([]);
+export default function ArtistClientPage({ artist, scrapedLinks }: Props) {
+  const [links, setLinks] = useState<{ url: string; label: string }[]>([]);
 
   useEffect(() => {
-    const fetchLinks = async () => {
-      try {
-        const res = await fetch(`/api/linktree/${slug}`);
-        const json: unknown = await res.json();
-
-        if (
-          typeof json === 'object' &&
-          json !== null &&
-          'links' in json &&
-          Array.isArray((json as Record<string, unknown>).links)
-        ) {
-          const links = (json as { links: ScrapedLink[] }).links;
-          const rawFeatured: ScrapedLink[] = [];
-          const rawSocial: ScrapedLink[] = [];
-
-          for (const link of links) {
-            const lower = link.url.toLowerCase();
-            if (
-              lower.includes('spotify') ||
-              lower.includes('bandcamp') ||
-              lower.includes('youtube') ||
-              lower.includes('soundcloud')
-            ) {
-              rawFeatured.push(link);
-            } else {
-              rawSocial.push(link);
-            }
-          }
-
-          const dedupedFeatured = await dedupeLinks(rawFeatured, rawSocial);
-          const dedupedSocial = await dedupeLinks(rawSocial, rawFeatured);
-
-          setFeaturedLinks(dedupedFeatured);
-          setSocialLinks(dedupedSocial);
-        }
-      } catch (e) {
-        console.error('Failed to load links:', e);
-      }
-    };
-
-    void fetchLinks();
-  }, [slug]);
-
-  const renderLinkListGrouped = (links: ScrapedLink[], sectionTitle: string) => {
-    const groups = groupLinksByPlatform(links);
-    if (Object.keys(groups).length === 0) return null;
-
-    return (
-      <div className="mb-6">
-        <h3 className="mb-2 text-lg font-bold">{sectionTitle}</h3>
-        <ul className="space-y-2">
-          {Object.entries(groups).map(([platform, links]) => (
-            <li key={platform} className="space-y-2">
-              {links.map((link) => (
-                <div
-                  key={link.url}
-                  className="bg-gray-800 rounded-lg px-4 py-2 transition hover:bg-gray-700"
-                >
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-white"
-                  >
-                    {getPlatformEmoji(link.url)} {cleanLabel(link.label ?? '')}
-                  </a>
-                </div>
-              ))}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
+    const filtered = filterUnwantedLinks(scrapedLinks);
+    const deduped = dedupeLinks(filtered);
+    setLinks(deduped);
+  }, [scrapedLinks]);
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <Tabs>
-        <TabsList>
-          <TabsTrigger value="about" onClick={() => setTab('about')}>
-            About
-          </TabsTrigger>
-          <TabsTrigger value="shows" onClick={() => setTab('shows')}>
-            Upcoming Shows
-          </TabsTrigger>
-          <TabsTrigger value="music" onClick={() => setTab('music')}>
-            Music
-          </TabsTrigger>
+    <div className="px-4 md:px-10 py-6 max-w-3xl mx-auto text-white">
+      {/* Header */}
+      <div className="text-center mb-6">
+        {artist.photoUrl && (
+          <Image
+            src={artist.photoUrl}
+            alt={artist.name}
+            width={150}
+            height={150}
+            className="rounded-full mx-auto mb-4 object-cover"
+          />
+        )}
+        <h1 className="text-2xl font-bold">{artist.name}</h1>
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="about" className="w-full">
+        <TabsList className="flex justify-center mb-4 flex-wrap gap-2">
+          <TabsTrigger value="about">About</TabsTrigger>
+          <TabsTrigger value="shows">Upcoming Shows</TabsTrigger>
+          <TabsTrigger value="music">Music</TabsTrigger>
         </TabsList>
 
+        {/* About Tab */}
         <TabsContent value="about">
-          {tab === 'about' && (
-            <div className="mt-4 space-y-4">
-              {artist.photoUrl && (
-                <Image
-                  src={artist.photoUrl}
-                  alt={artist.name}
-                  width={600}
-                  height={600}
-                  className="rounded-lg w-full"
-                />
-              )}
-              <p className="mb-4 text-sm text-gray-300 text-center max-w-prose mx-auto">
-                {artist.about}
-              </p>
-
-              {socialLinks.length > 0 &&
-                renderLinkListGrouped(socialLinks, 'Social Links')}
-              {featuredLinks.length > 0 &&
-                renderLinkListGrouped(featuredLinks, 'Featured Links')}
-            </div>
+          {artist.about && (
+            <div className="mb-6 text-center whitespace-pre-wrap">{artist.about}</div>
+          )}
+          {links.length > 0 && (
+            <ul className="space-y-4">
+              {links.map(({ url, label }) => (
+                <li key={url}>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-3 rounded bg-zinc-800 hover:bg-zinc-700 transition text-center"
+                  >
+                    {getPlatformEmoji(url)} {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           )}
         </TabsContent>
 
+        {/* Shows Tab */}
         <TabsContent value="shows">
-          {tab === 'shows' && <UpcomingShows artist={artist} />}
+          {artist.shows?.length ? (
+            <ul className="space-y-3 text-center">
+              {artist.shows.map((show) => (
+                <li key={show.date}>
+                  <strong>{show.date}</strong> — {show.location}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-center text-zinc-400">No upcoming shows listed.</p>
+          )}
         </TabsContent>
 
+        {/* Music Tab */}
         <TabsContent value="music">
-          {tab === 'music' && (
-            <div className="mt-4 space-y-4">
-              {(artist.music ?? []).map((url) => (
+          {artist.music?.length ? (
+            <div className="space-y-6">
+              {artist.music.map((url) => (
                 <EmbeddedPlayer key={url} url={url} />
               ))}
             </div>
+          ) : (
+            <p className="text-center text-zinc-400">No music links yet.</p>
           )}
         </TabsContent>
       </Tabs>

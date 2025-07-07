@@ -1,84 +1,108 @@
-// src/lib/scraper.ts
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
-import { getArtistBySlug } from './artist.config';
-import { ScrapedLink, CacheEntry } from './types';
-import { parseLinksFromHtml } from './scrape';
-import fetch from 'node-fetch';
+import { load } from 'cheerio';
+import puppeteer from 'puppeteer';
+import { ScrapedLink } from './types';
 
-const CACHE_FILE = path.join(process.cwd(), 'cache', 'linktree.json');
+const CACHE_PATH = path.resolve(process.cwd(), 'linktree-cache.json');
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
-let memoryCache: Record<string, CacheEntry> = {};
+type CacheEntry = {
+  timestamp: number;
+  links: ScrapedLink[];
+};
 
-function loadCache(): Record<string, CacheEntry> {
+type Cache = Record<string, CacheEntry>;
+
+async function loadCache(): Promise<Cache> {
   try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const json = fs.readFileSync(CACHE_FILE, 'utf8');
-      const parsed = JSON.parse(json) as unknown;
-      return parsed as Record<string, CacheEntry>;
-    }
-  } catch (e) {
-    console.error('Failed to load cache:', e);
-  }
-  return {};
-}
-
-function saveCache(cache: Record<string, CacheEntry>) {
-  try {
-    fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
-  } catch (e) {
-    console.error('Failed to save cache:', e);
+    const raw = await fs.readFile(CACHE_PATH, 'utf-8');
+    return JSON.parse(raw) as Cache; // ✅ Fixed: cast to Cache type
+  } catch {
+    return {};
   }
 }
 
-function isCacheValid(cached: CacheEntry | undefined, ttlMs = 1000 * 60 * 60 * 24): boolean {
-  if (!cached || !cached.timestamp || !cached.links?.length) return false;
-  return Date.now() - cached.timestamp < ttlMs;
+async function saveCache(cache: Cache) {
+  await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2), 'utf-8');
 }
 
-async function fetchWithTimeout(url: string, timeout = 10000): Promise<string> {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+async function scrapeWithPuppeteer(url: string): Promise<ScrapedLink[]> {
+  const browser = await puppeteer.launch({
+    headless: true, // ✅ Fixed: compatible with older Puppeteer versions
+    args: ['--no-sandbox'],
+    timeout: 30000,
+    slowMo: 30,
+  });
 
   try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      },
-    });
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-    return await res.text();
+    const links = await page.$$eval('a[href^="http"]', (elements) =>
+      elements.map((el) => ({
+        url: el.getAttribute('href') || '',
+        label: el.textContent?.trim() || '',
+      }))
+    );
+
+    return links.filter((link) => link.url);
   } finally {
-    clearTimeout(id);
+    await browser.close();
   }
 }
 
-export async function getLinksForArtist(slug: string, refresh = false): Promise<ScrapedLink[]> {
-  const artist = getArtistBySlug(slug);
-  if (!artist) throw new Error(`Artist not found: ${slug}`);
+async function scrapeWithCheerio(url: string): Promise<ScrapedLink[]> {
+  const res = await fetch(url);
+  const html = await res.text();
+  const $ = load(html);
 
-  const url = artist.socials?.[0];
-  if (!url) return [];
+  const links: ScrapedLink[] = [];
 
-  memoryCache = Object.keys(memoryCache).length ? memoryCache : loadCache();
-  const cached = memoryCache[slug];
+  $('a[href^="http"]').each((_, el) => {
+    const href = $(el).attr('href');
+    const label = $(el).text().trim();
+    if (href) links.push({ url: href, label });
+  });
 
-  if (!refresh && isCacheValid(cached)) {
+  return links;
+}
+
+export async function scrapeLinktreeLinks(
+  artistUrl: string,
+  opts: { refresh: boolean }
+): Promise<ScrapedLink[]> {
+  const cache = await loadCache();
+  const cached = cache[artistUrl];
+
+  if (!opts.refresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     return cached.links;
   }
 
+  let links: ScrapedLink[] = [];
+
   try {
-    const html = await fetchWithTimeout(url);
-    const links = parseLinksFromHtml(html);
-    memoryCache[slug] = { links, timestamp: Date.now() };
-    saveCache(memoryCache);
-    return links;
-  } catch (_e) {
-    console.error(`Failed to fetch/scrape links for ${slug}:`, _e);
-    return cached?.links || [];
+    links = await scrapeWithPuppeteer(artistUrl);
+  } catch (err) {
+    console.warn('[scraper] Puppeteer failed, falling back to Cheerio:', err);
+    try {
+      links = await scrapeWithCheerio(artistUrl);
+    } catch (err2) {
+      console.error('[scraper] Cheerio also failed:', err2);
+      throw new Error('Failed to scrape linktree links');
+    }
   }
+
+  cache[artistUrl] = {
+    timestamp: Date.now(),
+    links,
+  };
+
+  await saveCache(cache);
+
+  return links;
+}
+
+export async function getLinksForArtist(artistSlug: string, artistUrl: string, refresh = false) {
+  return scrapeLinktreeLinks(artistUrl, { refresh });
 }

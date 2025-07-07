@@ -1,73 +1,96 @@
-// src/components/EmbeddedPlayer.tsx
+'use client';
 
-import React from 'react';
+import { useEffect, useState } from 'react';
 
-type Props = {
+type EmbeddedPlayerProps = {
   url: string;
-  className?: string;
 };
 
-export default function EmbeddedPlayer({ url, className }: Props) {
-  if (!url) return null;
+interface OEmbedResponse {
+  html: string;
+  [key: string]: unknown;
+}
 
-  const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-  const isSoundCloud = url.includes('soundcloud.com');
-  const isBandcamp = url.includes('bandcamp.com');
-  const isSpotify = url.includes('spotify.com');
+export default function EmbeddedPlayer({ url }: EmbeddedPlayerProps) {
+  const [embedHtml, setEmbedHtml] = useState<string | null>(null);
 
-  if (isYouTube) {
-    const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-    return (
-      <iframe
-        src={`https://www.youtube.com/embed/${videoId}`}
-        title="YouTube player"
-        allow="autoplay; encrypted-media"
-        allowFullScreen
-        className={className || 'w-full aspect-video'}
-      />
-    );
-  }
+  useEffect(() => {
+    const fetchEmbed = async () => {
+      try {
+        const oEmbedProviders = [
+          'soundcloud.com',
+          'youtube.com',
+          'youtu.be',
+          'bandcamp.com',
+          'spotify.com',
+          'facebook.com',
+          'instagram.com',
+          'hypeddit.com',
+        ];
 
-  if (isSoundCloud) {
-    return (
-      <iframe
-        className={className || 'w-full'}
-        width="100%"
-        height="166"
-        scrolling="no"
-        frameBorder="no"
-        allow="autoplay"
-        src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23000000&inverse=false&auto_play=false&show_user=true`}
-      ></iframe>
-    );
-  }
+        const shouldTryOEmbed = oEmbedProviders.some((provider) =>
+          url.includes(provider)
+        );
 
-  if (isBandcamp) {
-    return (
-      <iframe
-        className={className || ''}
-        style={{ border: '0', width: '100%', height: '120px' }}
-        src={url}
-        seamless
-        title="Bandcamp embed"
-      ></iframe>
-    );
-  }
+        if (shouldTryOEmbed) {
+          let endpoint = '';
+          if (url.includes('soundcloud.com')) {
+            endpoint = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(
+              url
+            )}`;
+          } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            endpoint = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(
+              url
+            )}`;
+          } else if (url.includes('bandcamp.com')) {
+            endpoint = `https://bandcamp.com/oembed?format=json&url=${encodeURIComponent(
+              url
+            )}`;
+          } else if (url.includes('spotify.com')) {
+            endpoint = `https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`;
+          } else if (url.includes('facebook.com')) {
+            endpoint = `https://www.facebook.com/plugins/video/oembed.json/?url=${encodeURIComponent(
+              url
+            )}`;
+          } else if (url.includes('instagram.com')) {
+            endpoint = `https://graph.facebook.com/v12.0/instagram_oembed?url=${encodeURIComponent(
+              url
+            )}`;
+          } else if (url.includes('hypeddit.com')) {
+            // Hypeddit does not support oEmbed — fallback to preview
+            setEmbedHtml(null);
+            return;
+          }
 
-  if (isSpotify) {
-    const embedUrl = url.replace('/track/', '/embed/track/');
-    return (
-      <iframe
-        className={className || ''}
-        src={embedUrl}
-        width="100%"
-        height="80"
-        frameBorder="0"
-        allow="encrypted-media"
-        title="Spotify embed"
-      />
-    );
-  }
+          const response = await fetch(endpoint);
+          if (response.ok) {
+            const data = (await response.json()) as OEmbedResponse;
+            if (
+              typeof data.html === 'string' &&
+              !data.html.includes('onetrust.com')
+            ) {
+              setEmbedHtml(data.html);
+              return;
+            }
+          }
+        }
 
-  return null;
+        // fallback to link preview / no embed
+        setEmbedHtml(null);
+      } catch {
+        setEmbedHtml(null);
+      }
+    };
+
+    void fetchEmbed();
+  }, [url]);
+
+  if (!embedHtml) return null;
+
+  return (
+    <div
+      className="my-4"
+      dangerouslySetInnerHTML={{ __html: embedHtml }}
+    />
+  );
 }

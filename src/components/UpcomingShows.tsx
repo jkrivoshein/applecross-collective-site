@@ -1,16 +1,17 @@
-import { Artist } from '@/lib/types';
+import type { Show } from '@/lib/types';
 
-export default function UpcomingShows({ artist }: { artist: Artist }) {
-  if (!Array.isArray(artist.shows)) return null;
+export default function UpcomingShows({ shows }: { shows?: Show[] }) {
+  if (!shows || shows.length === 0) {
+    return <p className="text-sm text-white">No shows announced.</p>;
+  }
 
   return (
-    <div className="space-y-4">
-      {artist.shows.map((show, idx) => (
-        <div key={idx} className="text-sm">
-          <p>{show.date}</p>
-          <p className="text-muted-foreground">{show.location}</p>
-        </div>
+    <ul className="space-y-4 mt-4">
+      {shows.map((show, idx) => (
+        <li key={idx} className="text-sm text-white">
+          {show.date} — {show.location}
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
