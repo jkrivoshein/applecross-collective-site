@@ -15,7 +15,10 @@ export const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('inline-flex items-center justify-start gap-2 rounded-md bg-muted p-1', className)}
+      className={cn(
+        'flex w-full items-center justify-center gap-2',
+        className
+      )}
       {...props}
     />
   )
@@ -32,7 +35,7 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
       ref={ref}
       data-value={value}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground ring-offset-background transition-all hover:text-primary hover:bg-accent data-[state=active]:bg-background data-[state=active]:text-foreground',
+        'inline-flex items-center justify-center whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-white hover:border-white data-[state=active]:border-white data-[state=active]:text-white',
         className
       )}
       {...props}
