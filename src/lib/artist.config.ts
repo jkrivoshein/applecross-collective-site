@@ -14,7 +14,8 @@ export const artists: Record<string, Artist> = {
     ],
     music: [
       'https://soundcloud.com/applecrosscollective/eoa001-minimix-taylor',
-      'https://open.spotify.com/album/0wiqXYl3Y83jgypB97IMgo?si=OjxLwERhRlGqo_sFPwpsNQ',
+      'https://soundcloud.com/applecrosscollective/applecross-mix-series-007-patrick-skyler',
+      'https://soundcloud.com/applecrosscollective/applecross-mix-series-006-quartzzion-opulence-in-all-of-us',
     ],
   },
 

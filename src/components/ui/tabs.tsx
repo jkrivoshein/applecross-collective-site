@@ -1,56 +1,54 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-type TabsProps = {
-  children: React.ReactNode;
-};
-
-export function Tabs({ children }: TabsProps) {
-  return <div className="w-full">{children}</div>;
+export function Tabs(props: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn('w-full', props.className)} {...props} />
+  );
 }
 
-type TabsListProps = React.HTMLAttributes<HTMLDivElement>;
-
-export const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
-  ({ className, ...props }, ref) => (
+export function TabsList(props: React.HTMLAttributes<HTMLDivElement>) {
+  return (
     <div
-      ref={ref}
+      data-tabs-root
       className={cn(
-        'flex w-full items-center justify-center gap-2',
-        className
+        'relative flex justify-center gap-4 mb-6 border-b border-gray-800',
+        props.className
       )}
       {...props}
     />
-  )
-);
-TabsList.displayName = 'TabsList';
-
-interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  value: string;
+  );
 }
 
-export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
-  ({ className, value, ...props }, ref) => (
+export function TabsTrigger(
+  props: React.ButtonHTMLAttributes<HTMLButtonElement> & { value: string }
+) {
+  return (
     <button
-      ref={ref}
-      data-value={value}
-      className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-white hover:border-white data-[state=active]:border-white data-[state=active]:text-white',
-        className
-      )}
       {...props}
-    />
-  )
-);
-TabsTrigger.displayName = 'TabsTrigger';
-
-interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: string;
+      className={cn(
+        'relative px-4 py-2 text-sm font-medium text-gray-400',
+        'transition-colors duration-300 ease-in-out',
+        'data-[state=active]:text-white',
+        'rounded-none'
+      )}
+    >
+      <span>{props.children}</span>
+      {/* animated underline */}
+      <span
+        className={cn(
+          'absolute -bottom-[2px] left-1/2 w-1/2 h-0.5 bg-white rounded transition-transform duration-300 ease-in-out',
+          'transform -translate-x-1/2 scale-x-0 data-[state=active]:scale-x-100'
+        )}
+      />
+    </button>
+  );
 }
 
-export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
-  ({ className, value, ...props }, ref) => (
-    <div ref={ref} data-value={value} className={cn('mt-2', className)} {...props} />
-  )
-);
-TabsContent.displayName = 'TabsContent';
+export function TabsContent(
+  props: React.HTMLAttributes<HTMLDivElement> & { value: string }
+) {
+  return (
+    <div className={cn('w-full', props.className)} {...props} />
+  );
+}

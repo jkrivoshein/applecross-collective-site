@@ -31,8 +31,8 @@ export default function ArtistClientPage({ artist, slug }: Props) {
           Array.isArray((json as Record<string, unknown>).links)
         ) {
           const links = (json as { links: ScrapedLink[] }).links;
-          const featured: ScrapedLink[] = [];
-          const social: ScrapedLink[] = [];
+          const rawFeatured: ScrapedLink[] = [];
+          const rawSocial: ScrapedLink[] = [];
 
           for (const link of links) {
             const lower = link.url.toLowerCase();
@@ -42,14 +42,17 @@ export default function ArtistClientPage({ artist, slug }: Props) {
               lower.includes('youtube') ||
               lower.includes('soundcloud')
             ) {
-              featured.push(link);
+              rawFeatured.push(link);
             } else {
-              social.push(link);
+              rawSocial.push(link);
             }
           }
 
-          setFeaturedLinks(featured);
-          setSocialLinks(social);
+          const dedupedFeatured = await dedupeLinks(rawFeatured, rawSocial);
+          const dedupedSocial = await dedupeLinks(rawSocial, rawFeatured);
+
+          setFeaturedLinks(dedupedFeatured);
+          setSocialLinks(dedupedSocial);
         }
       } catch (e) {
         console.error('Failed to load links:', e);
@@ -58,9 +61,6 @@ export default function ArtistClientPage({ artist, slug }: Props) {
 
     void fetchLinks();
   }, [slug]);
-
-  const dedupedFeatured = dedupeLinks(featuredLinks, socialLinks);
-  const dedupedSocial = dedupeLinks(socialLinks, featuredLinks);
 
   const renderLinkListGrouped = (links: ScrapedLink[], sectionTitle: string) => {
     const groups = groupLinksByPlatform(links);
@@ -83,7 +83,7 @@ export default function ArtistClientPage({ artist, slug }: Props) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-sm text-white"
                   >
-                    {getPlatformEmoji(link.url)} {cleanLabel(link.label)}
+                    {getPlatformEmoji(link.url)} {cleanLabel(link.label ?? '')}
                   </a>
                 </div>
               ))}
@@ -121,10 +121,14 @@ export default function ArtistClientPage({ artist, slug }: Props) {
                   className="rounded-lg w-full"
                 />
               )}
-              <p className="text-sm">{artist.about}</p>
+              <p className="mb-4 text-sm text-gray-300 text-center max-w-prose mx-auto">
+                {artist.about}
+              </p>
 
-              {dedupedFeatured.length > 0 && renderLinkListGrouped(dedupedFeatured, 'Featured Links')}
-              {dedupedSocial.length > 0 && renderLinkListGrouped(dedupedSocial, 'Social Links')}
+              {socialLinks.length > 0 &&
+                renderLinkListGrouped(socialLinks, 'Social Links')}
+              {featuredLinks.length > 0 &&
+                renderLinkListGrouped(featuredLinks, 'Featured Links')}
             </div>
           )}
         </TabsContent>

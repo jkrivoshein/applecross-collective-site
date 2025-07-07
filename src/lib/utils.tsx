@@ -1,48 +1,125 @@
 // src/lib/utils.tsx
 
 import { ScrapedLink } from './types';
-import { twMerge } from 'tailwind-merge';
 
-export function cn(...inputs: (string | undefined | null | false)[]): string {
-  return twMerge(...inputs);
+const normalizationCache = new Map<string, string>();
+
+/**
+ * Resolves shortened or redirecting URLs (e.g. bit.ly, on.soundcloud.com).
+ * Uses HEAD requests to minimize data transfer.
+ */
+export async function resolveRedirect(url: string): Promise<string> {
+  if (normalizationCache.has(url)) {
+    return normalizationCache.get(url)!;
+  }
+
+  try {
+    const res = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
+
+    const finalUrl = res.url || url;
+    normalizationCache.set(url, finalUrl);
+    return finalUrl;
+  } catch {
+    return url;
+  }
 }
 
-export function cleanLabel(label?: string): string {
-  return label?.replace(/^https?:\/\//, '')
-               .replace(/^www\./, '')
-               .replace(/\/$/, '') || '';
+/**
+ * Normalizes a URL for deduplication by:
+ * - Resolving redirects (e.g. bit.ly, hyped.it)
+ * - Stripping www
+ * - Lowercasing hostname and path
+ * - Removing trailing slash
+ * - Ignoring query and hash
+ */
+export async function normalizeUrl(url: string): Promise<string> {
+  try {
+    const resolved = await resolveRedirect(url);
+    const u = new URL(resolved);
+    const hostname = u.hostname.replace(/^www\./, '').toLowerCase();
+    const pathname = u.pathname.replace(/\/$/, '').toLowerCase();
+    return `${hostname}${pathname}`;
+  } catch {
+    return url.toLowerCase().replace(/^www\./, '').replace(/\/$/, '');
+  }
 }
 
+/**
+ * Removes any links from `primary` that also appear in `secondary`,
+ * comparing based on normalized and resolved URL.
+ */
+export async function dedupeLinks(
+  primary: ScrapedLink[],
+  secondary: ScrapedLink[]
+): Promise<ScrapedLink[]> {
+  const seen = new Set<string>(
+    await Promise.all(secondary.map((link) => normalizeUrl(link.url)))
+  );
+
+  const result: ScrapedLink[] = [];
+
+  for (const link of primary) {
+    const normalized = await normalizeUrl(link.url);
+    if (!seen.has(normalized)) {
+      result.push(link);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Cleans a label by trimming whitespace and removing extraneous characters.
+ */
+export function cleanLabel(label: string): string {
+  return label.trim().replace(/^\W+|\W+$/g, '');
+}
+
+/**
+ * Groups links by hostname-derived platform label.
+ */
+export function groupLinksByPlatform(
+  links: ScrapedLink[]
+): Record<string, ScrapedLink[]> {
+  const groups: Record<string, ScrapedLink[]> = {};
+
+  for (const link of links) {
+    try {
+      const url = new URL(link.url);
+      const key = url.hostname.replace(/^www\./, '').toLowerCase();
+
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(link);
+    } catch {
+      if (!groups.unknown) groups.unknown = [];
+      groups.unknown.push(link);
+    }
+  }
+
+  return groups;
+}
+
+/**
+ * Returns an emoji for a platform based on the URL.
+ */
 export function getPlatformEmoji(url: string): string {
-  const lowered = url.toLowerCase();
-  if (lowered.includes('spotify')) return '🎧';
-  if (lowered.includes('soundcloud')) return '🎵';
-  if (lowered.includes('bandcamp')) return '💿';
-  if (lowered.includes('youtube')) return '📺';
-  if (lowered.includes('instagram')) return '📸';
-  if (lowered.includes('facebook')) return '👤';
-  if (lowered.includes('patreon')) return '💰';
-  if (lowered.includes('dropbox')) return '📁';
+  const u = url.toLowerCase();
+  if (u.includes('spotify')) return '🎧';
+  if (u.includes('soundcloud')) return '🔊';
+  if (u.includes('bandcamp')) return '💿';
+  if (u.includes('youtube')) return '📺';
+  if (u.includes('instagram')) return '📸';
+  if (u.includes('twitter') || u.includes('x.com')) return '🐦';
+  if (u.includes('facebook')) return '📘';
+  if (u.includes('tiktok')) return '🎵';
+  if (u.includes('linktr.ee')) return '🌲';
+  if (u.includes('hypeddit')) return '🚀';
   return '🔗';
 }
 
-export function dedupeLinks(...groups: ScrapedLink[][]): ScrapedLink[] {
-  const seen = new Set<string>();
-  return groups.flat().filter((link) => {
-    const key = new URL(link.url).hostname + new URL(link.url).pathname;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-export function groupLinksByPlatform(links: ScrapedLink[]) {
-  const featured = links.filter((l) => l.featured);
-  const social = links.filter(
-    (l) =>
-      !l.featured &&
-      /instagram|facebook|tiktok|x\.com|twitter|patreon/.test(l.url)
-  );
-  const other = links.filter((l) => !featured.includes(l) && !social.includes(l));
-  return { featured, social, other };
+export function cn(...classes: (string | false | null | undefined)[]): string {
+  return classes.filter(Boolean).join(' ');
 }
