@@ -1,21 +1,37 @@
 import { notFound } from 'next/navigation';
-import ArtistClientPage from '@/components/ArtistClientPage';
+import { type Metadata } from 'next';
 import { getArtistBySlug } from '@/lib/artist.config';
-import { getLinksForArtist } from '@/lib/scraper';
+import ArtistClientPage from '@/components/ArtistClientPage';
+import { scrapeLinktreeLinks } from '@/lib/scraper';
+import type { ScrapedLink } from '@/lib/types';
 
-export default async function Page({ params }: { params: { username: string } }) {
-  const { username } = params;
+type Props = {
+  params: { username: string };
+};
+
+export function generateMetadata({ params }: Props): Metadata {
+  return {
+    title: params.username,
+  };
+}
+
+export default async function Page({ params }: Props) {
+  const username = params.username;
+
   const artist = getArtistBySlug(username);
   if (!artist) return notFound();
 
-  let scrapedLinks: { url: string; label: string }[] = [];
+  let scrapedLinks: ScrapedLink[] = [];
 
-  if (artist.artistUrl) {
-    try {
-      scrapedLinks = await getLinksForArtist(username, artist.artistUrl);
-    } catch (e) {
-      console.error('Failed to scrape links:', e);
+  try {
+    if (artist.artistUrl) {
+      const result = await scrapeLinktreeLinks(artist.artistUrl, { refresh: false });
+      if (Array.isArray(result)) {
+        scrapedLinks = result;
+      }
     }
+  } catch (e) {
+    console.error('Failed to scrape links:', e);
   }
 
   return <ArtistClientPage artist={artist} scrapedLinks={scrapedLinks} />;
