@@ -1,99 +1,99 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Artist } from '@/lib/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { dedupeLinks, filterUnwantedLinks, getPlatformEmoji } from '@/lib/utils';
+import UpcomingShows from './UpcomingShows';
 import EmbeddedPlayer from './EmbeddedPlayer';
 
 type Props = {
   artist: Artist;
-  scrapedLinks: { url: string; label: string }[];
 };
 
-export default function ArtistClientPage({ artist, scrapedLinks }: Props) {
-  const [links, setLinks] = useState<{ url: string; label: string }[]>([]);
-
-  useEffect(() => {
-    const filtered = filterUnwantedLinks(scrapedLinks);
-    const deduped = dedupeLinks(filtered);
-    setLinks(deduped);
-  }, [scrapedLinks]);
+export default function ArtistClientPage({ artist }: Props) {
+  const [tab, setTab] = useState('about');
 
   return (
-    <div className="px-4 md:px-10 py-6 max-w-3xl mx-auto text-white">
-      {/* Header */}
-      <div className="text-center mb-6">
-        {artist.photoUrl && (
-          <Image
-            src={artist.photoUrl}
-            alt={artist.name}
-            width={150}
-            height={150}
-            className="rounded-full mx-auto mb-4 object-cover"
-          />
-        )}
-        <h1 className="text-2xl font-bold">{artist.name}</h1>
-      </div>
-
-      {/* Tabs */}
-      <Tabs defaultValue="about" className="w-full">
-        <TabsList className="flex justify-center mb-4 flex-wrap gap-2">
-          <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="shows">Upcoming Shows</TabsTrigger>
-          <TabsTrigger value="music">Music</TabsTrigger>
+    <div className="w-full max-w-3xl mx-auto px-4 pb-10">
+      <Tabs value={tab} onValueChange={(val: string) => setTab(val)} className="w-full">
+        <TabsList className="flex justify-center gap-2 border-b border-gray-700 pb-2 relative">
+          <TabsTrigger
+            value="about"
+            className={`px-4 py-2 text-sm font-medium rounded-full ${
+              tab === 'about' ? 'underline underline-offset-4' : ''
+            }`}
+          >
+            About
+          </TabsTrigger>
+          <TabsTrigger
+            value="shows"
+            className={`px-4 py-2 text-sm font-medium rounded-full ${
+              tab === 'shows' ? 'underline underline-offset-4' : ''
+            }`}
+          >
+            Upcoming Shows
+          </TabsTrigger>
+          <TabsTrigger
+            value="music"
+            className={`px-4 py-2 text-sm font-medium rounded-full ${
+              tab === 'music' ? 'underline underline-offset-4' : ''
+            }`}
+          >
+            Music
+          </TabsTrigger>
         </TabsList>
 
-        {/* About Tab */}
-        <TabsContent value="about">
-          {artist.about && (
-            <div className="mb-6 text-center whitespace-pre-wrap">{artist.about}</div>
-          )}
-          {links.length > 0 && (
-            <ul className="space-y-4">
-              {links.map(({ url, label }) => (
-                <li key={url}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-3 rounded bg-zinc-800 hover:bg-zinc-700 transition text-center"
-                  >
-                    {getPlatformEmoji(url)} {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </TabsContent>
-
-        {/* Shows Tab */}
-        <TabsContent value="shows">
-          {artist.shows?.length ? (
-            <ul className="space-y-3 text-center">
-              {artist.shows.map((show) => (
-                <li key={show.date}>
-                  <strong>{show.date}</strong> — {show.location}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-center text-zinc-400">No upcoming shows listed.</p>
-          )}
-        </TabsContent>
-
-        {/* Music Tab */}
-        <TabsContent value="music">
-          {artist.music?.length ? (
-            <div className="space-y-6">
-              {artist.music.map((url) => (
-                <EmbeddedPlayer key={url} url={url} />
-              ))}
+        <TabsContent value="about" className="mt-6">
+          {artist.photoUrl && (
+            <div className="mb-4 text-center">
+              <Image
+                src={artist.photoUrl}
+                alt={artist.name}
+                width={160}
+                height={160}
+                className="rounded-full mx-auto shadow-md"
+              />
             </div>
-          ) : (
-            <p className="text-center text-zinc-400">No music links yet.</p>
           )}
+          {artist.artwork && (
+            <div className="mb-4 text-center">
+              <Image
+                src={artist.artwork}
+                alt={`${artist.name} Artwork`}
+                width={300}
+                height={300}
+                className="mx-auto rounded-xl shadow-md"
+              />
+            </div>
+          )}
+          {artist.about && (
+            <p className="text-center text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
+              {artist.about}
+            </p>
+          )}
+          {artist.artistUrl && (
+            <div className="mt-6 text-center">
+              <a
+                href={artist.artistUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-xl bg-black px-5 py-3 text-white font-semibold shadow-md hover:bg-gray-800 transition"
+              >
+                Visit Artist Site
+              </a>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="shows" className="mt-6">
+          <UpcomingShows shows={artist.shows} />
+        </TabsContent>
+
+        <TabsContent value="music" className="mt-6 space-y-4">
+          {artist.music?.map((url, i) => (
+            <EmbeddedPlayer key={i} url={url} />
+          ))}
         </TabsContent>
       </Tabs>
     </div>

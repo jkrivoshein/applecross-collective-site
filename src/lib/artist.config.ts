@@ -23,7 +23,7 @@ export const artists: Record<string, Artist> = {
     slug: 'intranaut',
     name: 'Intranaut',
     photoUrl: '/images/intranaut.jpg',
-    artwork: '/images/intranaut-artwork.jpg',
+    artwork: '/images/other-artwork.jpg',
     about: 'Intranaut is an experimental bass music producer and DJ from the Pacific Northwest.',
     artistUrl: 'https://linktr.ee/intranaut',
     shows: [

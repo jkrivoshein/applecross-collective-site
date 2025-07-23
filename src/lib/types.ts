@@ -13,18 +13,3 @@ export type Artist = {
   shows?: Show[];
   music?: string[];
 };
-
-export type ScrapedLink = {
-  url: string;
-  label: string;
-  oembed?: {
-    title?: string;
-    html?: string;
-    thumbnail_url?: string;
-  };
-};
-
-export type CacheEntry = {
-  links: ScrapedLink[];
-  timestamp: number;
-};
