@@ -2,12 +2,8 @@ import { getArtistBySlug } from '@/lib/artist.config';
 import ArtistClientPage from '@/components/ArtistClientPage';
 import { notFound } from 'next/navigation';
 
-export default async function Page({
-  params,
-}: {
-  params: { username: string };
-}) {
-  await Promise.resolve(); // ✅ satisfies @typescript-eslint/require-await
+export default async function Page(context: { params: { username: string } }) {
+  const { params } = await Promise.resolve(context); // ✅ await the context per Next.js 15+ API route rules
 
   const artist = getArtistBySlug(params.username);
 
@@ -17,3 +13,4 @@ export default async function Page({
 
   return <ArtistClientPage artist={artist} />;
 }
+
