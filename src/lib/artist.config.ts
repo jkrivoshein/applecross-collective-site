@@ -14,48 +14,34 @@ export const artists: Record<string, Artist> = {
     ]
   },
 
-  intranaut: {
-    slug: 'intranaut',
-    name: 'Intranaut',
-    photoUrl: '/images/intranaut.jpg',
-    about: 'Intranaut is an experimental bass music producer and DJ from the Pacific Northwest.',
-    artistUrl: 'https://linktr.ee/intranaut',
+  aphonix: {
+    slug: 'aphonix',
+    name: 'Aphonix',
+    photoUrl: '/images/applecross.jpg',
+    about: 'A DJ and producer from Colorado',
+    artistUrl: 'https://linktr.ee/aphonix',
     music: [
-      'https://soundcloud.com/intranautmusic/traveler-chronicles-001',
-      'https://www.youtube.com/watch?v=ViJiHaomqWw'
+      'https://soundcloud.com/aphonix/5-in-flux160',
+      'https://soundcloud.com/aphonix/6-morning-relish-100',
     ]
   },
 
-  ourfriendgus: {
-    slug: 'ourfriendgus',
-    name: 'OurFriendGus',
-    photoUrl: '/images/other-dj.jpg',
-    about: 'Applecross Collective Admin, DJ and Producer. Also half of the group Pantry Raid.',
-    artistUrl: 'https://ourfriendgus.com',
+  buhlu: {
+    slug: 'buhlu',
+    name: 'buhlü',
+    photoUrl: '/images/applecross.jpg',
+    about: 'A DJ and producer from the west coast.',
+    artistUrl: 'https://www.buhlumusic.com/',
     music: [
-      'https://open.spotify.com/track/6wFtTMn2fRCGi5cMjsiX3C?si=0128acb86c7843c5',
-      'https://soundcloud.com/ourfriendgus/applecross-2024-performance',
-      'https://bandcamp.com/EmbeddedPlayer/album=2784637789/size=large/bgcol=ffffff/linkcol=0687f5/track=1/transparent=true/'
-    ]
-  },
-
-  kfish: {
-    slug: 'kfish',
-    name: 'K Fish',
-    photoUrl: '/images/other-dj.jpg',
-    about: 'A bass music producer and DJ from the PNW. Also one third of Meh.',
-    artistUrl: 'https://linktr.ee/kfishbeats',
-    music: [
-      'https://soundcloud.com/kfishbeats/boyfriend_forever_remix',
-      'https://soundcloud.com/kfishbeats/mac-miller-cold-feet-k-fish-remix',
-      'https://open.spotify.com/track/5G6MfowqL6y2uhoffyw1Hj?si=3295cd288bec42e1'
+      'https://soundcloud.com/buhlu/iluaimu-feat-underbelly',
+      'https://soundcloud.com/buhlu/just-uh-moment'
     ]
   },
 
   'gr33n-p13ce': {
     slug: 'gr33n-p13ce',
     name: 'GR33N P13CE',
-    photoUrl: '/images/other-dj.jpg',
+    photoUrl: '/images/applecross.jpg',
     about: 'A DJ and bass music producer in the PNW.',
     artistUrl: 'https://linktr.ee/gr33np13ce',
     music: [
@@ -68,7 +54,7 @@ export const artists: Record<string, Artist> = {
   'hello-ego': {
     slug: 'hello-ego',
     name: 'Hello Ego',
-    photoUrl: '/images/other-dj.jpg',
+    photoUrl: '/images/applecross.jpg',
     about: 'A bass music producer and DJ from SoCal.',
     artistUrl: 'https://linktr.ee/helloego',
     music: [
@@ -78,16 +64,28 @@ export const artists: Record<string, Artist> = {
     ]
   },
 
-  'neon-spellcraft': {
-    slug: 'neon-spellcraft',
-    name: 'Neon Spellcraft',
-    photoUrl: '/images/other-dj.jpg',
-    about: 'A bass music producer and DJ from SoCal.',
-    artistUrl: 'https://linktr.ee/neonspellcraft',
+  intranaut: {
+    slug: 'intranaut',
+    name: 'Intranaut',
+    photoUrl: '/images/applecross.jpg',
+    about: 'Intranaut is an experimental bass music producer and DJ from the Pacific Northwest.',
+    artistUrl: 'https://linktr.ee/intranaut',
     music: [
-      'https://open.spotify.com/track/41vheDeeZGFFfdV6zwulwT?si=b85e87343bd745d2',
-      'https://soundcloud.com/neonspellcraft/boba-fett',
-      'https://bandcamp.com/EmbeddedPlayer/album=715130692/size=large/bgcol=ffffff/linkcol=0687f5/track=1/transparent=true/'
+      'https://soundcloud.com/intranautmusic/traveler-chronicles-001',
+      'https://www.youtube.com/watch?v=ViJiHaomqWw'
+    ]
+  },
+
+  kfish: {
+    slug: 'kfish',
+    name: 'K Fish',
+    photoUrl: '/images/applecross.jpg', 
+    about: 'A bass music producer and DJ from the PNW. Also one third of Meh.',
+    artistUrl: 'https://linktr.ee/kfishbeats',
+    music: [
+      'https://soundcloud.com/kfishbeats/boyfriend_forever_remix',
+      'https://soundcloud.com/kfishbeats/mac-miller-cold-feet-k-fish-remix',
+      'https://open.spotify.com/track/5G6MfowqL6y2uhoffyw1Hj?si=3295cd288bec42e1'
     ]
   },
 
@@ -102,6 +100,68 @@ export const artists: Record<string, Artist> = {
       'https://open.spotify.com/track/3Eejy6AwqzAGe102HOmiPK?si=868ef389ef8241dc',
       'https://soundcloud.com/djlodestone/id20-wip',
       'https://www.youtube.com/watch?v=SpHfv765_9s'
+    ]
+  },
+
+  'neon-spellcraft': {
+    slug: 'neon-spellcraft',
+    name: 'Neon Spellcraft',
+    photoUrl: '/images/applecross.jpg',
+    about: 'A bass music producer and DJ from SoCal.',
+    artistUrl: 'https://linktr.ee/neonspellcraft',
+    music: [
+      'https://open.spotify.com/track/41vheDeeZGFFfdV6zwulwT?si=b85e87343bd745d2',
+      'https://soundcloud.com/neonspellcraft/boba-fett',
+      'https://bandcamp.com/EmbeddedPlayer/album=715130692/size=large/bgcol=ffffff/linkcol=0687f5/track=1/transparent=true/'
+    ]
+  },
+
+  nobeats: {
+    slug: 'nobeats',
+    name: 'NoBeats',
+    photoUrl: '/images/applecross.jpg',
+    about: 'A bass music producer and DJ from North Carolina.',
+    artistUrl: 'https://linktr.ee/nobeats',
+    music: [
+      'https://soundcloud.com/nobeatsmusic/foster-the-people-pumped-up-kicks-nobeats-flip',
+      'https://soundcloud.com/nobeatsmusic/chunk2',
+    ]
+  },
+
+  ourfriendgus: {
+    slug: 'ourfriendgus',
+    name: 'OurFriendGus',
+    photoUrl: '/images/applecross.jpg',
+    about: 'Applecross Collective Admin, DJ and Producer. Also half of the group Pantry Raid.',
+    artistUrl: 'https://ourfriendgus.com',
+    music: [
+      'https://open.spotify.com/track/6wFtTMn2fRCGi5cMjsiX3C?si=0128acb86c7843c5',
+      'https://soundcloud.com/ourfriendgus/applecross-2024-performance',
+      'https://bandcamp.com/EmbeddedPlayer/album=2784637789/size=large/bgcol=ffffff/linkcol=0687f5/track=1/transparent=true/'
+    ]
+  },
+
+  'polygon-rainbow': {
+    slug: 'polygon-rainbow',
+    name: 'Polygon Rainbow',
+    photoUrl: '/images/applecross.jpg',
+    about: 'A bass music producer and DJ from Portland, OR.',
+    artistUrl: 'https://www.flow.page/polygonrainbow',
+    music: [
+      'https://soundcloud.com/polygon-rainbow/1234-summer-of-love-unreleased-mix',
+      'https://soundcloud.com/polygon-rainbow/im-not-ready-yet',
+    ]
+  },
+
+  seda: {
+    slug: 'seda',
+    name: 'Seda',
+    photoUrl: '/images/applecross.jpg',
+    about: 'A bass music producer and DJ from Montana.',
+    artistUrl: 'https://linktr.ee/sedamuzic',
+    music: [
+      'https://soundcloud.com/sedamuzic/slop-em-up',
+      'https://soundcloud.com/sedamuzic/78d1e868-26f5-42bc-bec0-576cb492b46c',
     ]
   }
 };

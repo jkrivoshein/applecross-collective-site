@@ -4,9 +4,9 @@ import { getArtistBySlug } from '@/lib/artist.config';
 
 export async function GET(
   request: Request,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = context.params;
+  const { slug } = (await context.params);
   const artist = getArtistBySlug(slug);
 
   if (!artist || !artist.calendarUrl) {

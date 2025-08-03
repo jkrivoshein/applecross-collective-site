@@ -5,8 +5,7 @@ import { notFound } from 'next/navigation';
 export default async function Page(context: {
   params: { username: string };
 }) {
-  const { params } = await Promise.resolve(context); // ✅ satisfy Next.js API rules
-  const { username } = params;
+  const username = (await Promise.resolve(context)).params.username; // ✅ single expression, no destructuring
 
   const artist = getArtistBySlug(username);
   if (!artist) {
