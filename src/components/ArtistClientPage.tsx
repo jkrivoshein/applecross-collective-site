@@ -1,75 +1,71 @@
 'use client';
 
-import { useState } from 'react';
-import type { Artist } from '@/lib/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import UpcomingShows from './UpcomingShows';
-import EmbeddedPlayer from './EmbeddedPlayer';
+import React from 'react';
 import Image from 'next/image';
+import Shows from './Shows';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+import type { Artist } from '@/lib/types';
 
-interface Props {
-  artist: Artist;
-}
+type Track = { title?: string; url: string };
 
-export default function ArtistClientPage({ artist }: Props) {
-  const [tab, setTab] = useState('about');
+export default function ArtistClientPage({ artist }: { artist: Artist }) {
+  const shows = Array.isArray(artist.shows) ? artist.shows : [];
+
+  const music: Track[] = Array.isArray(artist.music)
+    ? (artist.music as unknown[]).map((m) =>
+        typeof m === 'string' ? { url: m } : (m as Track)
+      )
+    : [];
 
   return (
-    <div className="px-4 py-6">
-      <Tabs value={tab} onValueChange={(val) => setTab(val)} className="w-full">
-        <TabsList className="flex justify-center space-x-2 mb-6">
+    <div className="mx-auto max-w-3xl px-4 py-6">
+      <div className="flex flex-col items-center text-center gap-4">
+        {artist.photoUrl ? (
+          <Image
+            src={artist.photoUrl}
+            alt={artist.name ?? artist.slug}
+            width={160}
+            height={160}
+            className="rounded-2xl object-cover"
+            priority
+          />
+        ) : null}
+        <h1 className="text-2xl font-semibold">{artist.name ?? artist.slug}</h1>
+      </div>
+
+      <Tabs defaultValue="about" className="mt-6">
+        <TabsList className="flex justify-center gap-2">
           <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="shows">Upcoming Shows</TabsTrigger>
+          <TabsTrigger value="shows">Shows</TabsTrigger>
           <TabsTrigger value="music">Music</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="about">
-          <div className="max-w-2xl mx-auto text-center text-gray-300 space-y-6">
-            {artist.photoUrl && (
-              <div className="flex justify-center">
-                <Image
-                  src={artist.photoUrl}
-                  alt={`${artist.name} photo`}
-                  width={300}
-                  height={300}
-                  className="rounded-xl object-cover"
-                />
-              </div>
-            )}
-
-            {artist.about && <p className="text-base">{artist.about}</p>}
-
-            {artist.artistUrl && (
-              <div className="pt-4">
-                <a
-                  href={artist.artistUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 bg-white text-black font-semibold rounded hover:bg-gray-200 transition"
-                >
-                  Visit Artist Site
-                </a>
-              </div>
-            )}
-          </div>
+        <TabsContent value="about" className="mt-6">
+          {artist.about ? (
+            <p className="text-sm leading-6 text-neutral-300">{artist.about}</p>
+          ) : (
+            <p className="text-sm text-neutral-400">No bio yet.</p>
+          )}
         </TabsContent>
 
-        <TabsContent value="shows">
-          <UpcomingShows artist={artist} />
+        <TabsContent value="shows" className="mt-6">
+          <Shows shows={shows} />
         </TabsContent>
 
-        <TabsContent value="music">
-          <div className="max-w-2xl mx-auto text-center text-gray-300">
-            {artist.music?.length ? (
-              <div className="space-y-6">
-                {artist.music.map((url, idx) => (
-                  <EmbeddedPlayer key={idx} url={url} />
-                ))}
-              </div>
-            ) : (
-              <p>No music links available.</p>
-            )}
-          </div>
+        <TabsContent value="music" className="mt-6">
+          {music.length > 0 ? (
+            <ul className="space-y-3">
+              {music.map((m) => (
+                <li key={m.url} className="rounded-xl border border-neutral-800 p-3">
+                  <a href={m.url} target="_blank" rel="noreferrer" className="underline">
+                    {m.title ?? m.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-neutral-400">No music added.</p>
+          )}
         </TabsContent>
       </Tabs>
     </div>
