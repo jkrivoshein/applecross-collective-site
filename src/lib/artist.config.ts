@@ -155,7 +155,7 @@ export const artists: Record<string, Artist> = {
 
   seda: {
     slug: 'seda',
-    name: 'Seda',
+    name: 'seda',
     photoUrl: '/images/applecross.jpg',
     about: 'A bass music producer and DJ from Montana.',
     artistUrl: 'https://linktr.ee/sedamuzic',
