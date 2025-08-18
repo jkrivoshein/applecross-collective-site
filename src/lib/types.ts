@@ -1,6 +1,7 @@
 export type Show = {
   date: string;
   location: string;
+  title?: string;
 };
 
 export type Artist = {
