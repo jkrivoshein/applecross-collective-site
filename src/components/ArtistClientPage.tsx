@@ -51,6 +51,19 @@ export default function ArtistClientPage({ artist }: { artist: Artist }) {
               <p className="text-sm text-neutral-400">No bio yet.</p>
             )}
           </div>
+
+          {artist.artistUrl ? (
+            <div className="mt-6 text-center">
+              <a
+                href={artist.artistUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-lg bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+              >
+                Visit Artist Site
+              </a>
+            </div>
+          ) : null}
         </TabsContent>
 
         <TabsContent value="shows" className="mt-6">
