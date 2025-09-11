@@ -26,9 +26,11 @@ export default function ArtistClientPage({ artist }: { artist: Artist }) {
           <Image
             src={artist.photoUrl}
             alt={artist.name ?? artist.slug}
-            width={160}
-            height={160}
-            className="rounded-2xl object-cover"
+            width={1200}
+            height={800}
+            sizes="100vw"
+            style={{ width: '100%', height: 'auto' }}
+            className="rounded-lg"
             priority
           />
         ) : null}
