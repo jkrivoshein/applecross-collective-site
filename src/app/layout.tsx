@@ -21,12 +21,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="bg-black text-white">
+    <html lang="en" className="text-white">
       <body className={inter.className}>
         <header className="sticky top-0 z-50 bg-black border-b border-zinc-800">
           <ArtistSelector artists={artists} />
         </header>
-        <main className="max-w-4xl mx-auto">{children}</main>
+
+        {/* Full-viewport tiled background */}
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-0
+                     bg-[url('/images/logo-tile.svg')] bg-repeat bg-center sm:bg-left-top
+                     bg-[length:160px_160px] opacity-10 invert"
+        />
+
+        <main className="relative z-10 max-w-4xl mx-auto">
+          {children}
+        </main>
       </body>
     </html>
   );

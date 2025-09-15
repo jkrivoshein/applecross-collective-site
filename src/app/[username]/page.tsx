@@ -32,5 +32,11 @@ export default async function Page(context: { params: { username: string } }) {
   }
 
   const artistWithShows = { ...artist, shows: mergedShows } as typeof artist & { shows: Show[] };
-  return <ArtistClientPage artist={artistWithShows} />;
+
+  // Wrapper without bg-black so the tiled background shows through
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <ArtistClientPage artist={artistWithShows} />
+    </div>
+  );
 }
