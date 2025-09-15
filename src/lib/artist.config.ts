@@ -4,7 +4,7 @@ export const artists: Record<string, Artist> = {
   'applecross-collective': {
     slug: 'applecross-collective',
     name: 'Applecross Collective',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/applecross1.jpg',
     about: 'A musical collective from the Pacific Northwest.',
     artistUrl: 'https://linktr.ee/applecrosscollective',
     music: [
@@ -17,7 +17,7 @@ export const artists: Record<string, Artist> = {
   aphonix: {
     slug: 'aphonix',
     name: 'Aphonix',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/default.jpg',
     about: 'A DJ and producer from Colorado',
     artistUrl: 'https://linktr.ee/aphonix',
     music: [
@@ -29,7 +29,7 @@ export const artists: Record<string, Artist> = {
   buhlu: {
     slug: 'buhlu',
     name: 'buhlü',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/default.jpg',
     about: 'A DJ and producer from the west coast.',
     artistUrl: 'https://www.buhlumusic.com/',
     music: [
@@ -41,7 +41,7 @@ export const artists: Record<string, Artist> = {
   'gr33n-p13ce': {
     slug: 'gr33n-p13ce',
     name: 'GR33N P13CE',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/default.jpg',
     about: 'A DJ and bass music producer in the PNW.',
     artistUrl: 'https://linktr.ee/gr33np13ce',
     music: [
@@ -54,7 +54,7 @@ export const artists: Record<string, Artist> = {
   'hello-ego': {
     slug: 'hello-ego',
     name: 'Hello Ego',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/hello_ego.png',
     about: 'A bass music producer and DJ from SoCal.',
     artistUrl: 'https://linktr.ee/helloego',
     music: [
@@ -67,8 +67,8 @@ export const artists: Record<string, Artist> = {
   intranaut: {
     slug: 'intranaut',
     name: 'Intranaut',
-    photoUrl: '/images/applecross.jpg',
-    about: 'Intranaut is an experimental bass music producer and DJ from the Pacific Northwest.',
+    photoUrl: '/images/intranaut.jpg',
+    about: 'Seattle-based cat lover/Music Producer/DJ',
     artistUrl: 'https://linktr.ee/intranaut',
     music: [
       'https://soundcloud.com/intranautmusic/traveler-chronicles-001',
@@ -79,7 +79,7 @@ export const artists: Record<string, Artist> = {
   kfish: {
     slug: 'kfish',
     name: 'K Fish',
-    photoUrl: '/images/applecross.jpg', 
+    photoUrl: '/images/kfish.jpg', 
     about: 'A bass music producer and DJ from the PNW. Also one third of Meh.',
     artistUrl: 'https://linktr.ee/kfishbeats',
     music: [
@@ -106,7 +106,7 @@ export const artists: Record<string, Artist> = {
   'neon-spellcraft': {
     slug: 'neon-spellcraft',
     name: 'Neon Spellcraft',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/neonspellcraft.png',
     about: 'A bass music producer and DJ from SoCal.',
     artistUrl: 'https://linktr.ee/neonspellcraft',
     music: [
@@ -119,7 +119,7 @@ export const artists: Record<string, Artist> = {
   nobeats: {
     slug: 'nobeats',
     name: 'NoBeats',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/NoBeats.jpg',
     about: 'A bass music producer and DJ from North Carolina.',
     artistUrl: 'https://linktr.ee/nobeats',
     music: [
@@ -131,7 +131,7 @@ export const artists: Record<string, Artist> = {
   ourfriendgus: {
     slug: 'ourfriendgus',
     name: 'OurFriendGus',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/ourfriendgus.png',
     about: 'Applecross Collective Admin, DJ and Producer. Also half of the group Pantry Raid.',
     artistUrl: 'https://ourfriendgus.com',
     music: [
@@ -141,10 +141,22 @@ export const artists: Record<string, Artist> = {
     ]
   },
 
+  phyredelic: {
+    slug: 'phyredelic',
+    name: 'Phyredelic',
+    photoUrl: '/images/phyredelic.jpg',
+    about: 'PNW DJ and Producer',
+    artistUrl: 'https://linktr.ee/phyredelic',
+    music: [
+      'https://soundcloud.com/phyredelic/forward-in-time',
+      'https://soundcloud.com/phyredelic/you-dont-know-fminor-140bpm-112-v3',
+    ]
+  },
+
   'polygon-rainbow': {
     slug: 'polygon-rainbow',
     name: 'Polygon Rainbow',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/default.jpg',
     about: 'A bass music producer and DJ from Portland, OR.',
     artistUrl: 'https://www.flow.page/polygonrainbow',
     music: [
@@ -153,10 +165,22 @@ export const artists: Record<string, Artist> = {
     ]
   },
 
+  'secret-guest': {
+    slug: 'secret-guest',
+    name: '$ECRET GUE$T',
+    photoUrl: '/images/default.jpg',
+    about: 'A bass music producer and DJ from the Bay Area',
+    artistUrl: 'https://www.facebook.com/whoissecretguest',
+    music: [
+      'https://soundcloud.com/djsecretguest/drug-original-mix',
+      'https://soundcloud.com/djsecretguest/59seconds',
+    ]
+  },
+
   seda: {
     slug: 'seda',
     name: 'seda',
-    photoUrl: '/images/applecross.jpg',
+    photoUrl: '/images/default.jpg',
     about: 'A bass music producer and DJ from Montana.',
     artistUrl: 'https://linktr.ee/sedamuzic',
     music: [
