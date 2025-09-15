@@ -13,7 +13,7 @@ export const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      'relative flex justify-center gap-4 mb-6 border-b border-gray-800',
+      'relative flex justify-center gap-2 mb-6 border-b-2 border-gray-800',
       className
     )}
     {...props}
@@ -28,15 +28,19 @@ export const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'relative px-4 py-2 text-sm font-medium text-gray-400',
-      'transition-colors duration-300 ease-in-out',
-      'data-[state=active]:text-white',
-      'rounded-none',
+      // base
+      'relative px-4 py-2 text-sm font-medium transition-colors duration-300 ease-in-out',
+      'border-2 border-b-0 rounded-t-md',
+      // inactive (receded)
+      'text-gray-500 bg-zinc-900/50 hover:text-white hover:bg-zinc-800/70 border-gray-800',
+      // active
+      'data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:border-gray-500',
       className
     )}
     {...props}
   >
     <span>{children}</span>
+    {/* underline accent */}
     <span
       className={cn(
         'absolute -bottom-[2px] left-1/2 w-1/2 h-0.5 bg-white rounded transition-transform duration-300 ease-in-out',
