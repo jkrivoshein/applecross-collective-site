@@ -66,7 +66,7 @@ export const artists: Record<string, Artist> = {
 
   intranaut: {
     slug: 'intranaut',
-    name: 'Intranaut',
+    name: 'INTRANAUT',
     photoUrl: '/images/intranaut.jpg',
     about: 'Seattle-based cat lover/Music Producer/DJ',
     artistUrl: 'https://linktr.ee/intranaut',
