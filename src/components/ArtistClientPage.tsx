@@ -66,10 +66,22 @@ export default function ArtistClientPage({ artist }: { artist: Artist }) {
               </a>
             </div>
           ) : null}
+
+          {artist.slug === 'applecross-collective' && (
+            <div className="mt-4 text-center">
+              <a
+                href="https://www.brownpapertickets.com/event/6711276"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-lg bg-indigo-700 px-4 py-2 text-white hover:bg-indigo-600"
+              >
+                Applecross Summit PNW Tickets
+              </a>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="shows" className="mt-6">
-          {/* Shows list is centered and compact */}
           <div className="mx-auto max-w-xl">
             <Shows shows={shows} />
           </div>
